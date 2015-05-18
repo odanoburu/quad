@@ -11,133 +11,193 @@
 (define-ffi-definer define-freetype freetype-lib #:provide provide)
 
 ;; types
-(define FT_Byte _ubyte)
-(define FT_Bytes _bytes) ;; !!
-(define FT_Char _byte) ;; corresponds to _char
-(define FT_Int _int) ;; maybe _sint?
-(define FT_UInt _uint)
-(define FT_Int16 _short)
-(define FT_UInt16 _ushort)
-(define FT_Int32 _int32)
-(define FT_UInt32 _uint32)
-(define FT_Short _short)
-(define FT_UShort _ushort)
-(define FT_Long _long) ;; maybe _slong?
-(define FT_ULong _ulong)
-(define FT_Bool _byte)
-(define FT_Offset _size) ;; equivalent to _size_t?
-(define FT_PtrDist _ptrdiff) ;; equivalent to _longlong?
-(define FT_String _byte) ;; corresponds to _char
-(define FT_String_p _string) ;; char*
-(define FT_Tag FT_UInt32)
-(define FT_Error _int)
-(define FT_Fixed _long) ;; maybe _slong?
-(define FT_Pointer _pointer) ;; corresponds to void*
-(define FT_Pos _long) ;; maybe _slong?
-(define FT_FWord _short)
-(define FT_UFWord _ushort)
-(define FT_F26Dot16 _short)
-(define FT_F26Dot6 _long)
-(define FT_Glyph_Format _int)
-(define FT_Encoding _int)
+(define _void-pointer (_cpointer 'void-pointer))
+(define _char _byte)
+(define _char-pointer (_cpointer 'char-pointer))
+(define _uchar _ubyte)
+(define _FT_Byte _ubyte)
+(define _FT_Bytes _bytes)
+(define _FT_Char _char)
+(define _FT_Int _int)
+(define _FT_UInt _uint)
+(define _FT_Int16 _short)
+(define _FT_UInt16 _ushort)
+(define _FT_Int32 _int32)
+(define _FT_UInt32 _uint32)
+(define _FT_Short _short)
+(define _FT_UShort _ushort)
+(define _FT_Long _long)
+(define _FT_ULong _ulong)
+(define _FT_Bool _byte)
+(define _FT_Offset _size) ;; equivalent to _size_t?
+(define _FT_PtrDist _ptrdiff) ;; equivalent to _longlong?
+(define _FT_String _char) 
+(define _FT_String-pointer (_cpointer 'FT_String-pointer)) ;; char*
+(define _FT_Tag _FT_UInt32)
+(define _FT_Error _int)
+(define _FT_Fixed _long) 
+(define _FT_Pointer _void-pointer)
+(define _FT_Pos _long)
+(define _FT_FWord _short)
+(define _FT_UFWord _ushort)
+(define _FT_F26Dot16 _short)
+(define _FT_F26Dot6 _long)
+(define _FT_Glyph_Format _int)
+(define _FT_Encoding _int)
+(define _FT_Generic_Finalizer (_cpointer '_FT_Generic_Finalizer (_fun _void-pointer -> _void)))
 
-
-
-(define-syntax-rule (define-datatype name)
-  (define name (_cpointer 'name)))
-
-(define-datatype FT_Library)
-
+(define _FT_LibraryRec (_cpointer 'FT_LibraryRec))
+(define _FT_Library (_cpointer 'FT_Library))
 
 (define-cstruct _FT_Bitmap_Size
-  ([height FT_Short]
-   [width FT_Short]
-   [size FT_Pos]
-   [x_ppem FT_Pos]
-   [y_ppem FT_Pos]))
+  ([height _FT_Short]
+   [width _FT_Short]
+   [size _FT_Pos]
+   [x_ppem _FT_Pos]
+   [y_ppem _FT_Pos]))
 
-(define Foo _FT_Bitmap_Size-pointer)
+(define-cstruct _FT_CharMapRec
+  ([face _void-pointer] ; should be FT_Face
+   [encoding _FT_Encoding]
+   [platform_id _FT_UShort]
+   [encoding_id _FT_UShort]))
 
-(define-cstruct _FT_FaceRec
-  ([num_faces FT_Long]
-   [face_index FT_Long]
-   [face_flag FT_Long]
-   [style_flags FT_Long]
-   #| [num_glyphs FT_Long]
-   [family_name FT_String]
-   [style_name FT_String]
-   [num_fixed_sizes FT_Int]
-     
-[available_sizes _FT_Bitmap_Size]
-   [num_charmaps FT_Int]
-   ; restart here
+(define _FT_Charmap _FT_CharMapRec-pointer)
+(define _FT_CharMap-pointer (_cpointer 'FT_CharMap-pointer))
 
-   [charmaps FT_CharMap]
-   [generic FT_Generic]
-   [bbox FT_BBox]
-   [units_per_EM FT_UShort]
-   [ascender FT_Short]
-   [descender FT_Short]
-   [height FT_Short]
-   [max_advance_width FT_Short]
-   [max_advance_height FT_Short]
-   [underline_position FT_Short]
-   [underline_thickness FT_Short]
-   [glyph FT_GlyphSlot]
-   [size FT_Size]
-   [charmap FT_CharMap]
-   [driver FT_Driver]
-   [memory FT_Memory]
-   [stream FT_Stream]
-   [sizes_list FT_ListRec]
-   [autohint FT_Generic]
-   [extensions _void]
-   [internal FT_Face_Internal]
-|#))
+(define-cstruct _FT_Generic
+  ([data _void-pointer]
+   [finalizer _FT_Generic_Finalizer]))
 
-(define FT_Face _FT_FaceRec-pointer)
+(define-cstruct _FT_BBox
+  ([xMin _FT_Pos]
+   [yMin _FT_Pos]
+   [xMax _FT_Pos]
+   [yMax _FT_Pos]))
 
-#;(define FT_CharMap _FT_CharMapRec)
+(define-cstruct _FT_Glyph_Metrics
+  ([width _FT_Pos]
+   [height _FT_Pos]
+   [horiBearingX _FT_Pos]
+   [horiBearingY _FT_Pos]
+   [horiAdvance _FT_Pos]
+   [vertBearingX _FT_Pos]
+   [vertBearingY _FT_Pos]
+   [vertAdvance _FT_Pos]))
 
-#;(define-cstruct _FT_CharMapRec
-  ([face FT_Face]
-   [encoding FT_Encoding]
-   [platform_id FT_UShort]
-   [encoding_id FT_UShort]))
+(define-cstruct _FT_Vector
+  ([x _FT_Pos]
+   [y _FT_Pos]))
 
+(define-cstruct _FT_Bitmap
+  ([rows _int]
+   [width _int]
+   [pitch _int]
+   [buffer (_cpointer 'buffer)]
+   [num_grays _short]
+   [pixel_mode _ubyte]
+   [palette_mode _char]
+   [palette _void-pointer]))
 
+(define-cstruct _FT_Outline
+  ([n_contours _short]
+   [n_points _short]
+   [points _FT_Vector-pointer]
+   [tags (_cpointer 'tags)]
+   [contours (_cpointer 'contours)]
+   [flags _int]))
+
+(define-cstruct _FT_GlyphSlotRec
+  ([library           _FT_Library]
+   [face              _void-pointer]
+   [next              _void-pointer]
+   [reserved          _uint]
+   [generic           _FT_Generic]
+   [metrics           _FT_Glyph_Metrics]
+   [linearHoriAdvance _FT_Fixed]
+   [linearVertAdvance _FT_Fixed]
+   [advance           _FT_Vector]
+   [format            _FT_Glyph_Format]
+   [bitmap            _FT_Bitmap]
+   [bitmap_left       _FT_Int]
+   [bitmap_top        _FT_Int]
+   [outline           _FT_Outline]
+   [num_subglyphs     _FT_UInt]
+   [subglyphs         _void-pointer]
+   [control_data      _void-pointer]
+   [control_len       _long]
+   [lsb_delta         _FT_Pos]
+   [rsb_delta         _FT_Pos]
+   [other             _void-pointer]
+   [internal          _void-pointer]))
+
+(define _FT_GlyphSlot _FT_GlyphSlotRec-pointer) 
 
 (define-cstruct _FT_Size_Metrics
-  ([x_ppem FT_UShort]
-   [y_ppem FT_UShort]
-   [x_scale FT_Fixed]
-   [y_scale FT_Fixed]
-   [ascender FT_Pos]
-   [descender FT_Pos]
-   [height FT_Pos]
-   [max_advance FT_Pos]))
+  ([x_ppem _FT_UShort]
+   [y_ppem _FT_UShort]
+   [x_scale _FT_Fixed]
+   [y_scale _FT_Fixed]
+   [ascender _FT_Pos]
+   [descender _FT_Pos]
+   [height _FT_Pos]
+   [max_advance _FT_Pos]))
 
+(define-cstruct _FT_SizeRec
+  ([face _void-pointer]
+   [generic _FT_Generic]
+   [metrics _FT_Size_Metrics]
+   [internal _void-pointer]))
 
+(define _FT_Size _FT_SizeRec-pointer)
 
+(define-cstruct _FT_FaceRec
+  ([num_faces _FT_Long]
+   [face_index _FT_Long]
+   [face_flag _FT_Long]
+   [style_flags _FT_Long]
+   [num_glyphs _FT_Long]
+   [family_name _FT_String-pointer]
+   [style_name _FT_String-pointer]
+   [num_fixed_sizes _FT_Int]
+   [available_sizes _FT_Bitmap_Size-pointer]
+   [num_charmaps _FT_Int]
+   [charmaps _FT_CharMap-pointer]
+   [generic _FT_Generic]
+   [bbox _FT_BBox]
+   [units_per_EM _FT_UShort]
+   [ascender _FT_Short]
+   [descender _FT_Short]
+   [height _FT_Short]
+   [max_advance_width _FT_Short]
+   [max_advance_height _FT_Short]
+   [underline_position _FT_Short]
+   [underline_thickness _FT_Short]
+   [glyph _FT_GlyphSlot]
+   [size _FT_Size]
+   [charmap _FT_Charmap]
+   [driver _void-pointer]
+   [memory _void-pointer]
+   [stream _void-pointer]
+   [sizes_list_head _void-pointer]
+   [sizes_list_tail _void-pointer]
+   [autohint _FT_Generic]
+   [extensions _void-pointer]
+   [internal _void-pointer]))
 
+(define _FT_Face _FT_FaceRec-pointer)
 
-(define-freetype FT_Init_FreeType (_fun (ftlp : (_ptr o FT_Library)) -> (err : FT_Error) -> (values ftlp err)))
+(define-freetype FT_Init_FreeType (_fun (ftlp : (_ptr o _FT_Library)) -> (err : _FT_Error) -> (if (zero? err) ftlp (error 'FT_Init_FreeType))))
 
-(define-freetype FT_Done_FreeType (_fun FT_Library ->  (err : FT_Error)))
+(define-freetype FT_New_Face (_fun _FT_Library _string _FT_Long (ftfp : (_ptr o _FT_FaceRec)) -> (err : _FT_Error) -> (if (zero? err) ftfp (error 'FT_New_Face (format "error ~a" err)))))
 
-(define-freetype FT_New_Face (_fun FT_Library _file FT_Long (ftfp : (_ptr o FT_Face)) -> (err : FT_Error) -> (values ftfp err)))
+(define-freetype FT_Done_FreeType (_fun _FT_Library -> (err : _FT_Error) -> (if (zero? err) (void) (error 'FT_Done_FreeType))))
 
-(define-freetype FT_Done_Face (_fun FT_Face -> _void))
+(require rackunit)
+(check-not-exn (λ _
+                 (define ftlib (FT_Init_FreeType))
+                 (FT_Done_FreeType ftlib)))
 
-;(define-freetype FT_Get_Kerning (_fun FT_Face FT_UInt FT_UInt FT_UInt FT_Vector -> _void))
-
-
-(define-values (ftlib init-err) (FT_Init_FreeType))
-init-err
-
-(define-values (ftface face-err) (FT_New_Face ftlib (string->path "charter.ttf") 0))
-ftface
-face-err
-;(FT_FaceRec->list ftface)
-(FT_Done_FreeType ftlib)
-
+(define ftlib (FT_Init_FreeType))
+(define ftface (FT_New_Face ftlib "charter.ttf" 0))
+(FT_Done_FreeType ftlib)               
