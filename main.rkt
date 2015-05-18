@@ -188,13 +188,13 @@
 
 (define (typeset x)
   (coerce/input? . -> . doc?)  
-  (load-text-cache-file)
+  ;(load-text-cache-file)
   (define pages (append* (for/list ([multipage (in-list (input->nested-blocks x))])
                            (columns->pages (append* (for/list ([multicolumn (in-list multipage)])
                                                       (lines->columns (append* (for/list ([block-quads (in-list multicolumn)])
                                                                                  (block-quads->lines block-quads))))))))))
   (define doc (pages->doc pages))
-  (update-text-cache-file)
+  ;(update-text-cache-file)
   doc)
 
 

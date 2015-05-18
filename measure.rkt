@@ -20,26 +20,14 @@
   (build-path "font.cache"))
 
 (define (update-text-cache-file)
-  (when (current-text-cache-changed?)
-    (write-to-file (serialize (current-text-cache)) (get-cache-file-path) #:exists 'replace)
-    (current-text-cache-changed? #f)))
+  (void))
 
 (define (load-text-cache-file) 
-  (define cache-file-path (get-cache-file-path))
-  (current-text-cache (if (file-exists? cache-file-path)
-                          (deserialize (file->value cache-file-path))
-                          (make-hash))))
+  (void))
 
-(define current-text-cache (make-parameter (make-hash)))
-(define current-text-cache-changed? (make-parameter #f))
-(define current-font-cache (make-parameter (make-hash)))
 
 (define/caching (measure-max-size text font [weight 'normal] [style 'normal])
-  ;((string? string?) (symbol? symbol?) . ->* . number?)
-  (define font-instance (hash-ref! (current-font-cache) (list font weight style) (λ() (make-font #:size max-size #:style style #:weight weight #:face font))))
-  ;; 'combine' boolean only makes a difference for two or more chars
-  (hash-ref! (current-text-cache) (list text font weight style) (λ() (current-text-cache-changed? #t)
-                                                                  (values->list (send dc get-text-extent text font-instance (>= (string-length text) 1))))))
+  '(0 0 0 0))
 
 (define-syntax-rule (width x) (first x))
 (define-syntax-rule (height x) (second x))
