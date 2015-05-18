@@ -10,22 +10,44 @@
 
 (define-ffi-definer define-freetype freetype-lib #:provide provide)
 
+;; types
+(define FT_Byte _ubyte)
+(define FT_Bytes _bytes) ;; !!
+(define FT_Char _byte) ;; corresponds to _char
+(define FT_Int _int) ;; maybe _sint?
+(define FT_UInt _uint)
+(define FT_Int16 _short)
+(define FT_UInt16 _ushort)
+(define FT_Int32 _int32)
+(define FT_UInt32 _uint32)
+(define FT_Short _short)
+(define FT_UShort _ushort)
+(define FT_Long _long) ;; maybe _slong?
+(define FT_ULong _ulong)
+(define FT_Bool _byte)
+(define FT_Offset _size) ;; equivalent to _size_t?
+(define FT_PtrDist _ptrdiff) ;; equivalent to _longlong?
+(define FT_String _byte) ;; corresponds to _char
+(define FT_String_p _string) ;; char*
+(define FT_Tag FT_UInt32)
+(define FT_Error _int)
+(define FT_Fixed _long) ;; maybe _slong?
+(define FT_Pointer _pointer) ;; corresponds to void*
+(define FT_Pos _long) ;; maybe _slong?
+(define FT_FWord _short)
+(define FT_UFWord _ushort)
+(define FT_F26Dot16 _short)
+(define FT_F26Dot6 _long)
+(define FT_Glyph_Format _int)
+(define FT_Encoding _int)
+
+
+
 (define-syntax-rule (define-datatype name)
   (define name (_cpointer 'name)))
 
 (define-datatype FT_Library)
-(define-datatype FT_F26Dot6)
-(define-datatype FT_UInt)
-(define-datatype FT_Vector)
 
-(define FT_Error _int)
-(define FT_Long _slong)
-(define FT_Short _short)
-(define FT_UShort _ushort)
-(define FT_Fixed _slong)
-(define FT_Pos _slong)
-(define FT_String _string)
-(define FT_Int _sint)
 
 (define-cstruct _FT_Bitmap_Size
   ([height FT_Short]
