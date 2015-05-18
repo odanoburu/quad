@@ -18,6 +18,7 @@
 (define-datatype FT_UInt)
 (define-datatype FT_Vector)
 
+(define FT_Error _int)
 (define FT_Long _slong)
 (define FT_Short _short)
 (define FT_UShort _ushort)
@@ -26,18 +27,29 @@
 (define FT_String _string)
 (define FT_Int _sint)
 
+(define-cstruct _FT_Bitmap_Size
+  ([height FT_Short]
+   [width FT_Short]
+   [size FT_Pos]
+   [x_ppem FT_Pos]
+   [y_ppem FT_Pos]))
+
+(define Foo _FT_Bitmap_Size-pointer)
+
 (define-cstruct _FT_FaceRec
   ([num_faces FT_Long]
    [face_index FT_Long]
    [face_flag FT_Long]
    [style_flags FT_Long]
-   [num_glyphs FT_Long]
+   #| [num_glyphs FT_Long]
    [family_name FT_String]
    [style_name FT_String]
    [num_fixed_sizes FT_Int]
-   [available_sizes _FT_Bitmap_Size]
+     
+[available_sizes _FT_Bitmap_Size]
    [num_charmaps FT_Int]
    ; restart here
+
    [charmaps FT_CharMap]
    [generic FT_Generic]
    [bbox FT_BBox]
@@ -58,9 +70,11 @@
    [sizes_list FT_ListRec]
    [autohint FT_Generic]
    [extensions _void]
-   [internal FT_Face_Internal]))
+   [internal FT_Face_Internal]
+|#))
 
-(define FT_Face _FT_FaceRec)
+(define FT_Face _FT_FaceRec-pointer)
+
 #;(define FT_CharMap _FT_CharMapRec)
 
 #;(define-cstruct _FT_CharMapRec
@@ -69,12 +83,7 @@
    [platform_id FT_UShort]
    [encoding_id FT_UShort]))
 
-(define-cstruct _FT_Bitmap_Size
-  ([height FT_Short]
-   [width FT_Short]
-   [size FT_Pos]
-   [x_ppem FT_Pos]
-   [y_ppem FT_Pos]))
+
 
 (define-cstruct _FT_Size_Metrics
   ([x_ppem FT_UShort]
@@ -90,20 +99,23 @@
 
 
 
-(define-freetype FT_Init_FreeType (_fun (ftlp : (_ptr o FT_Library)) -> _void -> ftlp))
+(define-freetype FT_Init_FreeType (_fun (ftlp : (_ptr o FT_Library)) -> (err : FT_Error) -> (values ftlp err)))
 
-(define-freetype FT_Done_FreeType (_fun FT_Library -> _void))
+(define-freetype FT_Done_FreeType (_fun FT_Library ->  (err : FT_Error)))
 
-(define-freetype FT_New_Face (_fun FT_Library _file FT_Long (ftfp : (_ptr o FT_Face)) -> _void -> ftfp))
+(define-freetype FT_New_Face (_fun FT_Library _file FT_Long (ftfp : (_ptr o FT_Face)) -> (err : FT_Error) -> (values ftfp err)))
 
 (define-freetype FT_Done_Face (_fun FT_Face -> _void))
 
 ;(define-freetype FT_Get_Kerning (_fun FT_Face FT_UInt FT_UInt FT_UInt FT_Vector -> _void))
 
 
+(define-values (ftlib init-err) (FT_Init_FreeType))
+init-err
 
-(define ftlib (FT_Init_FreeType))
-(define ftface (FT_New_Face ftlib "charter.ttf" 0))
-(FT_FaceRec->list ftface)
-;(FT_Done_FreeType ftlib)
+(define-values (ftface face-err) (FT_New_Face ftlib (string->path "charter.ttf") 0))
+ftface
+face-err
+;(FT_FaceRec->list ftface)
+(FT_Done_FreeType ftlib)
 
