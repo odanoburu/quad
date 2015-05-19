@@ -157,7 +157,7 @@
    [face_flag _FT_Long]
    [style_flags _FT_Long]
    [num_glyphs _FT_Long]
-   [family_name _FT_String-pointer]
+   [family_name _FT_String-pointer] ; probably _string is a better choice
    [style_name _FT_String-pointer]
    [num_fixed_sizes _FT_Int]
    [available_sizes _FT_Bitmap_Size-pointer]
@@ -187,17 +187,23 @@
 
 (define _FT_Face _FT_FaceRec-pointer)
 
-(define-freetype FT_Init_FreeType (_fun (ftlp : (_ptr o _FT_Library)) -> (err : _FT_Error) -> (if (zero? err) ftlp (error 'FT_Init_FreeType))))
+(define-freetype FT_Init_FreeType (_fun (ftlp : (_ptr o _FT_Library))
+                                        -> (err : _FT_Error) 
+                                        -> (if (zero? err) ftlp (error 'FT_Init_FreeType))))
 
-(define-freetype FT_New_Face (_fun _FT_Library _string _FT_Long (ftfp : (_ptr o _FT_FaceRec)) -> (err : _FT_Error) -> (if (zero? err) ftfp (error 'FT_New_Face (format "error ~a" err)))))
+(define-freetype FT_New_Face (_fun _FT_Library _string _FT_Long 
+                                   (ftfp : (_ptr o _FT_Face))
+                                   -> (err : _FT_Error)
+                                   -> (if (zero? err) ftfp (error 'FT_New_Face (format "error ~a" err)))))
 
 (define-freetype FT_Done_FreeType (_fun _FT_Library -> (err : _FT_Error) -> (if (zero? err) (void) (error 'FT_Done_FreeType))))
 
 (require rackunit)
-(check-not-exn (λ _
+(check-not-exn (lambda _
                  (define ftlib (FT_Init_FreeType))
                  (FT_Done_FreeType ftlib)))
 
 (define ftlib (FT_Init_FreeType))
-(define ftface (FT_New_Face ftlib "charter.ttf" 0))
+(define ftface (FT_New_Face ftlib "Charter.ttf" 0))
+(cast (FT_FaceRec-family_name ftface) _pointer _string)
 (FT_Done_FreeType ftlib)               
