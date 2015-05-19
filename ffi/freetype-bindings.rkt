@@ -157,8 +157,8 @@
    [face_flag _FT_Long]
    [style_flags _FT_Long]
    [num_glyphs _FT_Long]
-   [family_name _FT_String-pointer] ; probably _string is a better choice
-   [style_name _FT_String-pointer]
+   [family_name _string] ; probably _string is a better choice
+   [style_name _string]
    [num_fixed_sizes _FT_Int]
    [available_sizes _FT_Bitmap_Size-pointer]
    [num_charmaps _FT_Int]
@@ -187,14 +187,19 @@
 
 (define _FT_Face _FT_FaceRec-pointer)
 
-(define-freetype FT_Init_FreeType (_fun (ftlp : (_ptr o _FT_Library))
-                                        -> (err : _FT_Error) 
-                                        -> (if (zero? err) ftlp (error 'FT_Init_FreeType))))
+(define _full-path
+   (make-ctype _path
+               path->complete-path
+               values))
 
-(define-freetype FT_New_Face (_fun _FT_Library _string _FT_Long 
-                                   (ftfp : (_ptr o _FT_Face))
+(define-freetype FT_Init_FreeType (_fun (ftl : (_ptr o _FT_Library))
+                                        -> (err : _FT_Error) 
+                                        -> (if (zero? err) ftl (error 'FT_Init_FreeType))))
+
+(define-freetype FT_New_Face (_fun _FT_Library _full-path _FT_Long 
+                                   (ftf : (_ptr o (_or-null _FT_Face)))
                                    -> (err : _FT_Error)
-                                   -> (if (zero? err) ftfp (error 'FT_New_Face (format "error ~a" err)))))
+                                   -> (if (zero? err) ftf (error 'FT_New_Face (format "error ~a" err)))))
 
 (define-freetype FT_Done_FreeType (_fun _FT_Library -> (err : _FT_Error) -> (if (zero? err) (void) (error 'FT_Done_FreeType))))
 
@@ -204,6 +209,12 @@
                  (FT_Done_FreeType ftlib)))
 
 (define ftlib (FT_Init_FreeType))
-(define ftface (FT_New_Face ftlib "Charter.ttf" 0))
-(cast (FT_FaceRec-family_name ftface) _pointer _string)
+(define font-name "charter.ttf")
+(check-true (file-exists? font-name))
+(define ftface (FT_New_Face ftlib font-name 0))
+(FT_FaceRec-family_name ftface)
+(FT_FaceRec-style_name ftface)
+(FT_FaceRec-num_glyphs ftface)
+(FT_FaceRec-units_per_EM ftface)
+(FT_FaceRec-underline_position ftface)
 (FT_Done_FreeType ftlib)               
