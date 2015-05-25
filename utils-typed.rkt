@@ -1,6 +1,5 @@
 #lang typed/racket/base
-(require/typed hyphenate [hyphenate (String #:min-length Nonnegative-Integer #:min-left-length Nonnegative-Integer #:min-right-length Nonnegative-Integer -> String)])
-(require (for-syntax racket/syntax racket/base) racket/string racket/list typed/sugar/debug typed/sugar/define racket/bool racket/function math/flonum)
+(require (for-syntax racket/syntax racket/base) racket/string racket/list typed/sugar/debug typed/sugar/define racket/bool racket/function math/flonum typed/hyphenate)
 (require "quads-typed.rkt" "world-typed.rkt" "measure-typed.rkt" "core-types.rkt")
 
 (define/typed+provide (quad-map proc q)
@@ -265,10 +264,10 @@
   (QuadListItem -> QuadListItem)
   (cond
     [(quad? x) (quad-map hyphenate-quad x)]
-    [(string? x) (hyphenate x
+    [(string? x) (assert (hyphenate x
                             #:min-length 6	 	 	 	 
                             #:min-left-length 3	 	 	 	 
-                            #:min-right-length 3)]
+                            #:min-right-length 3) string?)]
     [else x]))
 
 ;; just because it comes up a lot
